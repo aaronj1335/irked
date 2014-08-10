@@ -37,9 +37,13 @@ var App = React.createClass({
   }
 });
 
+// allow the code to use /irked as a base, since i'm cheap and i like deploying
+// from gh-pages
+var path = /^\/irked\//.test(location.pathname)? '/irked/' : '';
+
 React.renderComponent(<Routes location='history'>
-  <Route handler={App}>
-    <Route handler={MessagesView} />
-    <Route name='message' path='message/:date' handler={MessagesView} />
+  <Route path={path} handler={App}>
+    <Route path={path} handler={MessagesView} />
+    <Route path={path + 'message/:date'} handler={MessagesView} name='message' />
   </Route>
 </Routes>, document.body);
