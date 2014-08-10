@@ -1,3 +1,7 @@
 language: node_js
 node_js: '0.10'
+cache: node_modules
 after_success: if [ "$TRAVIS_BRANCH" = master ]; then bin/deploy; fi
+before_install:
+- openssl aes-256-cbc -K $encrypted_c7c3d176f3f2_key -iv $encrypted_c7c3d176f3f2_iv
+  -in id_rsa.irked_deploy.enc -out id_rsa.irked_deploy -d

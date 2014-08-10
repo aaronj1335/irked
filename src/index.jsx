@@ -41,6 +41,8 @@ var App = React.createClass({
 // from gh-pages
 var path = /^\/irked\//.test(location.pathname)? '/irked/' : '';
 
+window.wuuut = true;
+
 React.renderComponent(<Routes location='history'>
   <Route path={path} handler={App}>
     <Route path={path} handler={MessagesView} />

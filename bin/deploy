@@ -4,12 +4,16 @@ set -e
 
 sha=`git rev-parse --verify HEAD`
 
-# the build
-rm -rf dist
-./node_modules/.bin/webpack
-hash="$(ls dist | grep 'index.*js' | sed -e 's/^index\.//' -e 's/\.js$//')"
-sed "s/index.js/index.$hash.js/" index.html > dist/index.html
+if [ "$TRAVIS_BRANCH" ]; then
+  ssh-agent -s | grep -v echo > ~/.ssh-agent
+  source ~/.ssh-agent
+  chmod 600 id_rsa.irked_deploy
+  ssh-add id_rsa.irked_deploy
+  rm id_rsa.irked_deploy
+  git remote set-url origin git@github.com:aaronj1335/irked.git
+fi
 
+git fetch origin gh-pages:gh-pages
 git checkout gh-pages
 
 # remove anything in the root of the directory that's not in the dist directory
@@ -26,7 +30,17 @@ git add .
 # them
 if ! git diff-index --cached --quiet HEAD --ignore-submodules --; then
   echo "changes made, deploying..."
-  git commit -m "deploy $sha"
+
+  # if it's on travis, we need to set the user identity
+  if [ "$TRAVIS_BRANCH" ]; then
+    git config user.email "noreply@travis-ci.org"
+    git config user.name "Travis-CI"
+    git config push.default matching
+  fi
+
+  git commit -m "deploy $sha
+
+travis build id: $TRAVIS_BUILD_ID"
   git push
   echo "...deployed"
 else
