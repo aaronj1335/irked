@@ -43,7 +43,3 @@ React.renderComponent(<Routes location='history'>
     <Route name='message' path='message/:date' handler={MessagesView} />
   </Route>
 </Routes>, document.body);
-
-window.Router = Router;
-window.React = React;
-window.MessagesView = MessagesView;

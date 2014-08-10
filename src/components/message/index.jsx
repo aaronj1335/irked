@@ -8,7 +8,7 @@ var Message = React.createClass({
     var date = new Date(this.props.date);
 
     return (
-      <tr className='message'>
+      <tr className={'message ' + this.props.className}>
         <td className='date' title={datetime(date)}>
           <Link to='message' date={date.toISOString()}>
             {time(date)}

@@ -6,8 +6,6 @@ var Messages = require('./../messages/index.jsx');
 var MessagesView = React.createClass({
   mixins: [User],
 
-  foo: true,
-
   getInitialState: function() {
     return {};
   },
@@ -17,7 +15,7 @@ var MessagesView = React.createClass({
   },
 
   render: function() {
-    return <Messages />;
+    return <Messages controlPageScrolling='true' />;
   }
 });
 
