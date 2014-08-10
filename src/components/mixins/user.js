@@ -5,8 +5,24 @@ var auth = require('./../../auth')();
 var constants = require('./../../constants');
 
 module.exports = {
+  _reconcileAuthRef: function() {
+    var url;
+
+    if (auth.isLoggedIn()) {
+      url = constants.FIREBASE_URL + '/users/' + auth.userId();
+      this._userRef = new Firebase(url);
+      this._userRef.on('value', function (snapshot) {
+        this.onUser(snapshot.val());
+      }.bind(this));
+    } else if (this._userRef) {
+      this._userRef.off('value');
+      delete this._userRef;
+    }
+  },
+
   componentDidMount: function() {
     auth.on('authenticated', this.onAuthenticatedChange);
+    this._reconcileAuthRef();
   },
 
   componentWillUnmount: function() {
@@ -20,7 +36,6 @@ module.exports = {
     var newState = _.merge(this.state, {
       isLoggedIn: auth.isLoggedIn()
     });
-    var url;
 
     if (!newState.isLoggedIn)
       delete newState.user;
@@ -28,16 +43,7 @@ module.exports = {
     if (this.isMounted())
       this.replaceState(newState);
 
-    if (auth.isLoggedIn()) {
-      url = constants.FIREBASE_URL + '/users/' + auth.userId();
-      this._userRef = new Firebase(url);
-      this._userRef.on('value', function (snapshot) {
-        this.onUser(snapshot.val());
-      }.bind(this));
-    } else if (this._userRef) {
-      this._userRef.off('value');
-      delete this._userRef;
-    }
+    this._reconcileAuthRef();
   },
 
   onUser: function(user) {

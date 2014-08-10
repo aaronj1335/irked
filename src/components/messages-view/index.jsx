@@ -6,9 +6,14 @@ var Messages = require('./../messages/index.jsx');
 var MessagesView = React.createClass({
   mixins: [User],
 
+  foo: true,
+
+  getInitialState: function() {
+    return {};
+  },
+
   componentDidMount: function() {
-    if (this._userRef)
-      this._userRef.child('date').set(this.props.params.date);
+    this._userRef.update({date: this.props.params.date || null});
   },
 
   render: function() {
