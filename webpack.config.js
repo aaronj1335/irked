@@ -3,7 +3,7 @@ module.exports = {
 
   output: {
     path: './dist',
-    filename: 'index.js'
+    filename: 'index.[hash].js',
   },
 
   module: {

@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -e
+
+sha=`git rev-parse --verify HEAD`
+
+# the build
+rm -rf dist
+./node_modules/.bin/webpack
+hash="$(ls dist | grep 'index.*js' | sed -e 's/^index\.//' -e 's/\.js$//')"
+sed "s/index.js/index.$hash.js/" index.html > dist/index.html
+
+git checkout gh-pages
+
+# remove anything in the root of the directory that's not in the dist directory
+for f in `find . -maxdepth 1 -type f`; do
+  if ! [ -f dist/$f ] && [ "$f" != "./.gitignore" ]; then
+    git rm $f || true
+  fi
+done
+
+cp dist/* ./
+git add .
+
+# check if there were actually any changes that need adding, and if so, deploy
+# them
+if ! git diff-index --cached --quiet HEAD --ignore-submodules --; then
+  echo "changes made, deploying..."
+  git commit -m "deploy $sha"
+  git push
+  echo "...deployed"
+else
+  echo "no deployable changes, exiting"
+fi
+
