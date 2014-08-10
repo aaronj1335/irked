@@ -118,7 +118,7 @@ module.exports = React.createClass({
           required />
       </div>
       <div className='form-group'>
-        <button type='submit' className='btn btn-default'>Submit</button>
+        <button type='submit' className='btn btn-primary'>Submit</button>
       </div>
       {alert}
     </form>;
