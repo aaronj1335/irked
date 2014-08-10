@@ -9,7 +9,7 @@ var logger = require('connect-logger');
 
 var html = fs.readFileSync('index.html')
   .toString()
-  .replace(/(\/index.js)/, 'http://localhost:8080$1');
+  .replace(/(index.js)/, 'http://localhost:8080/$1');
 
 child.spawn('webpack-dev-server', ['--config', 'webpack.config.dev.js'], {
   stdio: [0, 1, 2]
@@ -24,4 +24,4 @@ app
   });
 
 http.createServer(app).listen(8000);
-console.log('listening');
+console.log('ready');
