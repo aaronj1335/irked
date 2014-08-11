@@ -44,6 +44,8 @@ var path = /^\/irked\//.test(location.pathname)? '/irked/' : '';
 React.renderComponent(<Routes location='history'>
   <Route path={path} handler={App}>
     <Route path={path} handler={MessagesView} />
-    <Route path={path + 'message/:date'} handler={MessagesView} name='message' />
+    <Route path={path + 'message/:date'}
+      handler={MessagesView}
+      name='message' />
   </Route>
 </Routes>, document.body);

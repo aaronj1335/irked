@@ -18,7 +18,9 @@ var Nav = React.createClass({
           <a href='#'
               className='dropdown-toggle'
               onClick={this.onDropdownClick}>
-            {this.state.user.email} <span className='caret'></span>
+            {this.state.user.displayName}{' '}
+            {this.state.user.avatar?
+              <img className='avi' src={this.state.user.avatar} /> : ''}
           </a>
           <ul className='dropdown-menu' role='menu'>
             <li>
@@ -49,9 +51,11 @@ var Nav = React.createClass({
       <div className='navbar navbar-inverse navbar-fixed-top' role='navigation'>
         <div className='container-fluid'>
           {/* Brand and toggle get grouped for better mobile display */}
+          {/*}
           <div className='navbar-header'>
             <a className='navbar-brand' href='/'></a>
           </div>
+          {*/}
 
           {/* Collect the nav links, forms, and other content for toggling */}
           <div className='collapse navbar-collapse'>

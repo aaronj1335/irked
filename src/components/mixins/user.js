@@ -21,18 +21,18 @@ module.exports = {
   },
 
   componentDidMount: function() {
-    auth.on('authenticated', this.onAuthenticatedChange);
+    auth.on('authchange', this.onAuthChange);
     this._reconcileAuthRef();
   },
 
   componentWillUnmount: function() {
-    auth.off('authenticated', this.onAuthenticatedChange);
+    auth.off('authchange', this.onAuthChange);
 
     if (this._userRef)
       this._userRef.off('value');
   },
 
-  onAuthenticatedChange: function() {
+  onAuthChange: function() {
     var newState = _.merge(this.state, {
       isLoggedIn: auth.isLoggedIn()
     });
