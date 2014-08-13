@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var merge = require('lodash.merge');
 var React = require('react');
 var ReactFire = require('reactfire');
 var Firebase = require('firebase');
@@ -69,7 +69,7 @@ module.exports = React.createClass({
   },
 
   onSubmit: function(event) {
-    var newState = _.merge({disabled: true}, this.state);
+    var newState = merge({disabled: true}, this.state);
 
     event.preventDefault();
     delete newState.error;

@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var merge = require('lodash.merge');
 var Firebase = require('firebase');
 
 var auth = require('./../../auth')();
@@ -33,7 +33,7 @@ module.exports = {
   },
 
   onAuthChange: function() {
-    var newState = _.merge(this.state, {
+    var newState = merge(this.state, {
       isLoggedIn: auth.isLoggedIn()
     });
 

@@ -1,7 +1,7 @@
-var _ = require('lodash');
+var merge = require('lodash.merge');
 var config = require('./webpack.config');
 
-module.exports = _.merge({}, config, {
+module.exports = merge({}, config, {
   output: {
     filename: 'index.js'
   }

@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var last = require('lodash.last');
 var React = require('react');
 var ReactFire = require('reactfire');
 var {Link} = require('react-router');
@@ -80,7 +80,7 @@ var Messages = React.createClass({
   },
 
   render: function() {
-    var keyMessage = _.last(this.state.messagesBefore);
+    var keyMessage = last(this.state.messagesBefore);
     var highlighted = this._messageKey()? keyMessage : null;
     var messages = this.state.messagesBefore
       .concat(this.state.messagesAfter.slice(1));
@@ -97,7 +97,7 @@ var Messages = React.createClass({
       if (this.state.messagesAfter.length > 1)
       var after = <tr>
         <td className='text-center' colSpan='3'>
-          <Link to='message' date={_.last(this.state.messagesAfter).date}>
+          <Link to='message' date={last(this.state.messagesAfter).date}>
             Load subsequent messages
           </Link>
         </td>

@@ -1,4 +1,4 @@
-var merge = require('lodash').merge;
+var merge = require('lodash.merge');
 var Firebase = require('firebase');
 var FirebaseSimpleLogin = require('firebase-simple-login');
 var eventEmitter = require('event-emitter');

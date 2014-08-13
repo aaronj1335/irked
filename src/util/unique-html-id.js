@@ -1,5 +1,5 @@
-var _ = require('lodash');
+var i = 0;
 
 module.exports = function() {
-  return 'uniqueid' + _.uniqueId();
+  return 'uniqueid' + i++;
 };

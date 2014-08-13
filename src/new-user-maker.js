@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var merge = require('lodash.merge');
 
 var UserMixin = require('./components/mixins/user');
 var auth = require('./auth')();
@@ -9,9 +9,9 @@ function emailFromUserInfo(user) {
   if (user.provider === 'password')
     return user.email;
   else if (user.provider === 'github')
-    return _.find(user.thirdPartyUserData.emails, function(item) {
+    return user.thirdPartyUserData.emails.filter(function(item) {
       return item.primary;
-    }).email;
+    })[0].email;
   else
     throw new Error('could not get email ' + JSON.stringify(user, null, 2));
 }
@@ -66,7 +66,7 @@ NewUserMaker.prototype.replaceState = function(newState) {
 };
 
 NewUserMaker.prototype.setState = function(stateUpdate) {
-  this.replaceState(_.merge(this.state, stateUpdate));
+  this.replaceState(merge(this.state, stateUpdate));
 };
 
 module.exports = function() {
