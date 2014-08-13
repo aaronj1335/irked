@@ -1,0 +1,65 @@
+#!/bin/bash
+
+this_scripts_dir="$(dirname `type -p $0`)"
+
+USAGE="USAGE: `basename $0` [-h] <github handle>
+
+verify a github user so they can login
+
+the firebase secret must be exported as IRKED_FIREBASE_SECRET or passed in via
+the -s flag (see https://www.firebase.com/docs/security/custom-login.html)
+
+want to verify a bunch of folks on the team? something like this:
+
+    team='jslau vtho pkalamegham gjoby aaronj1335 ronak evanrmurphy aniham jcomeaux'
+    for n in \$team; do
+      bin/verify-gh-user -s <secret> \$n
+    done
+
+Options:
+    -s  firebase secret for the irked app instance
+    -h  Show this help message"
+
+# Parse command line options.
+while getopts hs: OPT; do
+  case "$OPT" in
+    h)
+      echo "$USAGE"
+      exit 0
+      ;;
+    s)
+      IRKED_FIREBASE_SECRET=$OPTARG
+      ;;
+    \?)
+      # getopts issues an error message
+      echo "$USAGE" >&2
+      exit 1
+      ;;
+  esac
+done
+
+# Remove the switches we parsed above.
+shift `expr $OPTIND - 1`
+
+# We want at least one non-option argument.
+# Remove this block if you don't need it.
+if [ $# -eq 0 ]; then
+  echo must specify a github handle
+  echo "$USAGE" >&2
+  exit 1
+fi
+
+if [ ! "$IRKED_FIREBASE_SECRET" ]; then
+  echo must specify a firebase secret
+  echo "$USAGE" >&2
+  exit 1
+fi
+
+firebase="https://blistering-fire-9660.firebaseio.com"
+handle=$1
+id=`curl https://api.github.com/users/$handle 2>/dev/null | \
+  grep '"id":' | \
+  sed -E 's/[^[:digit:]]//g'`
+
+curl -X PATCH -d '{"verified": true}' \
+  ${firebase}/users/github:${id}.json?auth=${IRKED_FIREBASE_SECRET}
