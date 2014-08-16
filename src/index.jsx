@@ -7,7 +7,9 @@ var User = require('./components/mixins/user');
 var Nav = require('./components/nav/index.jsx');
 var Messages = require('./components/messages/index.jsx');
 var MessagesView = require('./components/messages-view/index.jsx');
+var SearchView = require('./components/search-view/index.jsx');
 var auth = require('./auth')();
+
 require('./new-user-maker')();
 require('./styles.less');
 
@@ -29,9 +31,7 @@ var App = React.createClass({
     return <div className='app'>
       <Nav loggedIn={!!this.state.user} />
       <div className='container'>
-        <div className='row'>
-          {content}
-        </div>
+        {content}
       </div>
     </div>;
   }
@@ -47,5 +47,8 @@ React.renderComponent(<Routes location='history'>
     <Route path={path + 'message/:date'}
       handler={MessagesView}
       name='message' />
+    <Route path={path + 'search'} handler={SearchView} name='search' />
   </Route>
 </Routes>, document.body);
+
+window.React = React;

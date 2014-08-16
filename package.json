@@ -1,13 +1,16 @@
 {
-  "name": "indexd",
+  "name": "irked",
   "version": "0.0.0",
-  "description": "",
+  "description": "this is meant to be hosted on gh-pages and hooked up to a free firebase cause who's got money to spend on hosting an irc logger anyway.",
   "main": "index.js",
   "scripts": {
-    "test": "bin/build"
+    "test": "bin/build",
+    "start": "nohup node ./lib/searchd.js &>logs/searchd.log &\n echo $! > logs/searchd.pid",
+    "stop": "[ -f logs/searchd.pid ] && kill `cat logs/searchd.pid` 2>/dev/null; rm -f logs/searchd.pid",
+    "dev": "node bin/dev.js"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "bootstrap": "^3.2.0",
     "css-loader": "^0.7.0",
@@ -29,10 +32,27 @@
     "url-loader": "^0.5.5"
   },
   "devDependencies": {
+    "JSONStream": "^0.9.0",
     "connect": "^3.1.0",
     "connect-logger": "0.0.1",
+    "es6-promise": "^1.0.0",
+    "event-stream": "^3.1.7",
+    "hyperquest": "^0.3.0",
+    "lodash.flatten": "^2.4.1",
+    "request": "^2.40.0",
     "textual-log-parser": "^0.1.0",
     "webpack": "^1.3.2-beta9",
     "webpack-dev-server": "^1.4.7"
-  }
+  },
+  "bin": {
+    "irked": "create-index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aaronj1335/irked.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aaronj1335/irked/issues"
+  },
+  "homepage": "https://github.com/aaronj1335/irked"
 }

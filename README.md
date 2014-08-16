@@ -35,7 +35,7 @@ it doesn't automatically update the logs unfortunately, so maybe write a plugin 
 
 ## development
 
-just clone and run `npm install && node bin/dev.js` for the development server. it runs at [localhost:8000](http://localhst:8000).
+just clone and run `npm install && npm run dev` for the development server. it runs at [localhost:8000](http://localhst:8000).
 
 ## deployment
 

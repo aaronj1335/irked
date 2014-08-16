@@ -2,6 +2,7 @@ var React = require('react');
 var Firebase = require('firebase');
 
 var User = require('./../mixins/user');
+var SearchBox = require('./../search-box/index.jsx');
 var constants = require('./../../constants');
 var auth = require('./../../auth')();
 
@@ -28,6 +29,11 @@ var Nav = React.createClass({
           </ul>
         </li>
       </ul>;
+  },
+
+  _renderSearch: function() {
+    if (this.state.user)
+      return <SearchBox className='navbar-form navbar-right' />;
   },
 
   getInitialState: function() {
@@ -59,17 +65,7 @@ var Nav = React.createClass({
           {/* Collect the nav links, forms, and other content for toggling */}
           <div className='collapse navbar-collapse'>
             {this._renderDropdown()}
-
-            {/*}
-            <form className='navbar-form navbar-right' role='search'>
-              <div className='form-group'>
-                <input type='search'
-                  className='form-control'
-                  placeholder='Search' />
-              </div>
-            </form>
-            {*/}
-
+            {this._renderSearch()}
           </div>{/* /.navbar-collapse */}
         </div>{/* /.container-fluid */}
       </div>

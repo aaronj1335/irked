@@ -4,18 +4,18 @@
 //   bin/generate-firebase-json.js ~/Documents/irc_logs/bbbbb\ \(745E1\)/Channels/#waterfall 2> logs.json
 
 var parser = require('textual-log-parser');
-var _ = require('lodash');
+var flatten = require('lodash.flatten');
 
 var DIR = process.argv[2];
 
 parser.parse(DIR, function(results) {
-  var filteredResults = _.flatten(results)
+  var filteredResults = flatten(results)
     .filter(function(entry) {
       return entry && entry.value && entry.value[0] === '<';
     })
     .map(function(entry) {
-      var from = entry.value.match(/^\<([^\>]+)\>/);
-      var message = entry.value.match(/^\<[^\>]+\> ?(.*)/);
+      var from = entry.value.match(/^<([^\>]+)\>/);
+      var message = entry.value.match(/^<[^\>]+\> ?(.*)/);
 
       if (!from || !message)
         throw new Error('failed to parse: ' + entry.value);
