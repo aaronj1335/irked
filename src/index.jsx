@@ -39,18 +39,16 @@ var App = React.createClass({
 
 // allow the code to use /irked as a base, since i'm cheap and i like deploying
 // from gh-pages
-var path = /^\/irked\//.test(location.pathname)? '/irked/' : '/';
+var root = /^\/irked\//.test(location.pathname)? '/irked/#/' : '/';
 // if we're deployed to gh-pages, then we need to use hash routing since it's
 // just a simple static file server
-var loc = /irked/.test(path)? 'hash' : 'history';
+var loc = /irked/.test(root)? 'hash' : 'history';
 
 React.renderComponent(<Routes location={loc}>
-  <Route path={path} handler={App}>
-    <Route path={path} handler={MessagesView} />
-    <Route path={path + 'message/:date'}
-      handler={MessagesView}
-      name='message' />
-    <Route path={path + 'search'} handler={SearchView} name='search' />
+  <Route path={root}                     handler={App}>
+    <Route path={root}                   handler={MessagesView} name='home' />
+    <Route path={root + 'message/:date'} handler={MessagesView} name='message' />
+    <Route path={root + 'search'}        handler={SearchView}   name='search' />
   </Route>
 </Routes>, document.body);
 
