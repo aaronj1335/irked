@@ -4,37 +4,41 @@ var Firebase = require('firebase');
 var {Link} = require('react-router');
 
 var constants = require('./../../constants');
-var {datetime, date} = require('./../../util/format');
+var {datetime, date, splitDateForSup} = require('./../../util/format');
 
 var SearchResults = React.createClass({
   mixins: [ReactFire],
 
   _renderResults: function() {
     var hits = this.state.search.result.hits || [];
-    var results = [];
+    var results = <p>No search results found.</p>;
 
     if (hits.length)
-      // probably a better way to do this, but adjacent jsx nodes need to be
-      // underneath a single parent, and that doesn't work with <dl>'s, so just
-      // make an array with 'push'
-      hits.forEach(function(result) {
-        results.push(<dt key={result.date + '_dt'}>
-          <Link to='message' date={result.date}>
-            {date(result.date)}
-          </Link>
-        </dt>);
-        results.push(<dd key={result.date + '_dd'}>
-          <strong>{result.from + ' '}</strong>
-          {result.message}
-        </dd>);
+      results = hits.map(function(hit) {
+        var dateSplit = splitDateForSup(date(hit.date));
+
+        return <div className='panel panel-default'>
+          <div className='panel-heading'>
+            <h3 className='panel-title'>
+              <Link to='message' date={hit.date}>
+                {dateSplit[0]}
+                <sup>{dateSplit[1]}</sup>
+                {dateSplit[2] + ' '}
+                &raquo;
+              </Link>
+            </h3>
+          </div>
+
+          <div className='panel-body'>
+            <strong>{hit.from + ' '}</strong>
+            {hit.message}
+          </div>
+        </div>;
       });
-    else
-      results = <p>No search results found.</p>;
 
     return <div>
       <h3>Search results</h3>
-      <p>{this.props.query}</p>
-      <dl className='dl-horizontal'>{results}</dl>
+      <div>{results}</div>
     </div>;
   },
 
