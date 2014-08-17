@@ -43,9 +43,9 @@ var loc = /^\/irked\//.test(location.pathname)? 'hash' : 'history';
 
 React.renderComponent(<Routes location={loc}>
   <Route                          handler={App}>
-    <Route                        handler={MessagesView} name='home' />
+    <Route path={'/'}             handler={MessagesView} name='home' />
     <Route path={'message/:date'} handler={MessagesView} name='message' />
-    <Route path={'search'}        handler={SearchView}   name='search' />
+    <Route                        handler={SearchView}   name='search' />
   </Route>
 </Routes>, document.body);
 
