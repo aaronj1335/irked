@@ -715,7 +715,7 @@
 	      React.DOM.div({className: "container-fluid"}, 
 	        React.DOM.p({className: "text-muted small"}, 
 	          React.DOM.a({href: "https://github.com/aaronj1335/irked", className: "pull-right"}, 
-	            "View source"
+	            "View source »"
 	          ), 
 
 	          "Made with ", React.DOM.span({className: "label label-default"}, datfeel), 
@@ -1409,7 +1409,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports =
-		".footer {\n  font-weight: 300;\n}\n.footer a,\n.footer a:hover {\n  font-weight: normal;\n  color: #777777;\n}\n";
+		".footer {\n  font-weight: 300;\n}\n.footer a,\n.footer a:hover {\n  font-weight: 500;\n  color: #777777;\n}\n";
 
 /***/ },
 /* 25 */
@@ -1436,14 +1436,14 @@
 /* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(69);
+	module.exports = __webpack_require__(68);
 
 
 /***/ },
 /* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(68);
+	module.exports = __webpack_require__(69);
 
 
 /***/ },
@@ -8392,6 +8392,37 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(11);
+	var Route = __webpack_require__(69);
+
+	function Redirect(props) {
+	  return Route({
+	    path: props.from,
+	    handler: createRedirectClass(props.to)
+	  });
+	}
+
+	function createRedirectClass(to) {
+	  return React.createClass({
+	    statics: {
+	      willTransitionTo: function(transition, params, query) {
+	        transition.redirect(to, params, query);
+	      }
+	    },
+
+	    render: function() {
+	      return null;
+	    }
+	  });
+	}
+
+	module.exports = Redirect;
+
+
+/***/ },
+/* 69 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(11);
 	var withoutProperties = __webpack_require__(164);
 
 	/**
@@ -8490,37 +8521,6 @@
 
 
 /***/ },
-/* 69 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React = __webpack_require__(11);
-	var Route = __webpack_require__(68);
-
-	function Redirect(props) {
-	  return Route({
-	    path: props.from,
-	    handler: createRedirectClass(props.to)
-	  });
-	}
-
-	function createRedirectClass(to) {
-	  return React.createClass({
-	    statics: {
-	      willTransitionTo: function(transition, params, query) {
-	        transition.redirect(to, params, query);
-	      }
-	    },
-
-	    render: function() {
-	      return null;
-	    }
-	  });
-	}
-
-	module.exports = Redirect;
-
-
-/***/ },
 /* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -8531,7 +8531,7 @@
 	var goBack = __webpack_require__(71);
 	var replaceWith = __webpack_require__(72);
 	var transitionTo = __webpack_require__(73);
-	var Route = __webpack_require__(68);
+	var Route = __webpack_require__(69);
 	var Path = __webpack_require__(166);
 	var ActiveStore = __webpack_require__(171);
 	var RouteStore = __webpack_require__(172);
@@ -9083,7 +9083,7 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var bind = __webpack_require__(256),
+	var bind = __webpack_require__(255),
 	    identity = __webpack_require__(257),
 	    setBindData = __webpack_require__(258),
 	    support = __webpack_require__(259);
@@ -18312,7 +18312,7 @@
 	        if (!locales[name] && hasModule) {
 	            try {
 	                oldLocale = moment.locale();
-	                __webpack_require__(255)("./" + name);
+	                __webpack_require__(256)("./" + name);
 	                // because defineLocale currently also sets the global locale, we want to undo that for lazy loaded locales
 	                moment.locale(oldLocale);
 	            } catch (e) { }
@@ -24771,6 +24771,52 @@
 /* 255 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="npm" -o ./npm/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	var createWrapper = __webpack_require__(382),
+	    slice = __webpack_require__(100);
+
+	/**
+	 * Creates a function that, when called, invokes `func` with the `this`
+	 * binding of `thisArg` and prepends any additional `bind` arguments to those
+	 * provided to the bound function.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Functions
+	 * @param {Function} func The function to bind.
+	 * @param {*} [thisArg] The `this` binding of `func`.
+	 * @param {...*} [arg] Arguments to be partially applied.
+	 * @returns {Function} Returns the new bound function.
+	 * @example
+	 *
+	 * var func = function(greeting) {
+	 *   return greeting + ' ' + this.name;
+	 * };
+	 *
+	 * func = _.bind(func, { 'name': 'fred' }, 'hi');
+	 * func();
+	 * // => 'hi fred'
+	 */
+	function bind(func, thisArg) {
+	  return arguments.length > 2
+	    ? createWrapper(func, 17, slice(arguments, 2), null, thisArg)
+	    : createWrapper(func, 1, null, null, thisArg);
+	}
+
+	module.exports = bind;
+
+
+/***/ },
+/* 256 */
+/***/ function(module, exports, __webpack_require__) {
+
 	var map = {
 		"./af": 286,
 		"./af.js": 286,
@@ -24940,52 +24986,6 @@
 	};
 	webpackContext.resolve = webpackContextResolve;
 	module.exports = webpackContext;
-
-
-/***/ },
-/* 256 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="npm" -o ./npm/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	var createWrapper = __webpack_require__(382),
-	    slice = __webpack_require__(100);
-
-	/**
-	 * Creates a function that, when called, invokes `func` with the `this`
-	 * binding of `thisArg` and prepends any additional `bind` arguments to those
-	 * provided to the bound function.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Functions
-	 * @param {Function} func The function to bind.
-	 * @param {*} [thisArg] The `this` binding of `func`.
-	 * @param {...*} [arg] Arguments to be partially applied.
-	 * @returns {Function} Returns the new bound function.
-	 * @example
-	 *
-	 * var func = function(greeting) {
-	 *   return greeting + ' ' + this.name;
-	 * };
-	 *
-	 * func = _.bind(func, { 'name': 'fred' }, 'hi');
-	 * func();
-	 * // => 'hi fred'
-	 */
-	function bind(func, thisArg) {
-	  return arguments.length > 2
-	    ? createWrapper(func, 17, slice(arguments, 2), null, thisArg)
-	    : createWrapper(func, 1, null, null, thisArg);
-	}
-
-	module.exports = bind;
 
 
 /***/ },
@@ -37165,9 +37165,9 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var isNative = __webpack_require__(433),
+	var isNative = __webpack_require__(432),
 	    isObject = __webpack_require__(98),
-	    noop = __webpack_require__(432);
+	    noop = __webpack_require__(433);
 
 	/* Native method shortcuts for methods with the same name as other `lodash` methods */
 	var nativeCreate = isNative(nativeCreate = Object.create) && nativeCreate;
@@ -37498,38 +37498,6 @@
 	 * Available under MIT license <http://lodash.com/license>
 	 */
 
-	/**
-	 * A no-operation function.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Utilities
-	 * @example
-	 *
-	 * var object = { 'name': 'fred' };
-	 * _.noop(object) === undefined;
-	 * // => true
-	 */
-	function noop() {
-	  // no operation performed
-	}
-
-	module.exports = noop;
-
-
-/***/ },
-/* 433 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="npm" -o ./npm/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-
 	/** Used for native method references */
 	var objectProto = Object.prototype;
 
@@ -37555,6 +37523,38 @@
 	}
 
 	module.exports = isNative;
+
+
+/***/ },
+/* 433 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="npm" -o ./npm/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+
+	/**
+	 * A no-operation function.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Utilities
+	 * @example
+	 *
+	 * var object = { 'name': 'fred' };
+	 * _.noop(object) === undefined;
+	 * // => true
+	 */
+	function noop() {
+	  // no operation performed
+	}
+
+	module.exports = noop;
 
 
 /***/ },
