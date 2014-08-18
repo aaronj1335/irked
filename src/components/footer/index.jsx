@@ -36,7 +36,7 @@ var Footer = React.createClass({
       <div className='container-fluid'>
         <p className='text-muted small'>
           <a href='https://github.com/aaronj1335/irked' className='pull-right'>
-            View source
+            View source &raquo;
           </a>
 
           Made with <span className='label label-default'>{datfeel}</span>
