@@ -1,0 +1,125 @@
+#!/usr/bin/env node
+
+var HELP = [
+  'read json from stdin and write it to an elasticsearch index. by default',
+  'this tries to PUT the documents to a local elasticsearch process, but if',
+  'you export SEARCHLY_API_KEY, it will send it to a searchly instance (see in',
+  'src/constants.js).',
+  '',
+  'EXAMPLE:',
+  '',
+  'parse textual logs and send them to an elastic search instance:',
+  '',
+  '  $ bin/parse -d <log dir> | bin/index'
+].join('\n');
+
+var JSONStream = require('JSONStream');
+var request = require('request');
+var highland = require('highland');
+
+var constants = require('./../src/constants');
+var pipeline = [null];
+var options, idsUrl;
+
+function makeDocument(messages) {
+  var before = messages[0]? messages[0] : {message: ''};
+  var current = messages[1];
+  var after = messages[2]? messages[2] : {message: ''};
+
+  return {
+    from: current.from,
+    messageBefore: before.message,
+    message: current.message,
+    messageAfter: after.message
+  };
+}
+
+function id(message) {
+  return new Date(message.date).valueOf();
+}
+
+function indexUrl() {
+  return constants.ELASTICSEARCH_URL + '/waterfall/message/';
+}
+
+function makeMessageUrl(messages) {
+  var stamp = id(messages[1]);
+  var url = indexUrl() + stamp;
+
+  return url;
+}
+
+function handleData(data) {
+  var _id;
+
+  pipeline.push(data);
+
+  if (pipeline.length > 3)
+    pipeline.shift();
+
+  _id = id(pipeline[1]);
+
+  if (options.skip && options.skip[_id]) {
+    return highland(['{"skipped": true, "_id": ' + _id + '}']);
+  } else if (pipeline.length === 3) {
+    return highland(request({
+      url: makeMessageUrl(pipeline),
+      method: 'PUT',
+      body: JSON.stringify(makeDocument(pipeline))
+    }));
+  } else {
+    return highland([]);
+  }
+}
+
+function index(inputStream, options) {
+  options = options || {};
+
+  return highland(inputStream.pipe(JSONStream.parse('*')))
+    .flatMap(handleData)
+    .concat(highland([null]).flatMap(handleData))
+    .map(JSON.parse)
+    .map(function(response) {
+      if (response.error)
+        throw new Error(response.error);
+
+      return (response.created? 'created' :
+              response.skipped? 'skipped' :
+                                'updated') +
+        ' ' + response._id + '\n';
+    });
+}
+
+module.exports = index;
+
+if (require.main === module) {
+  idsUrl = indexUrl() + '_search?size=100000&fields=';
+  options = require('nomnom')
+    .option('noupdate', {
+      abbr: 'n',
+      flag: true,
+      default: false,
+      help: 'don\'t PUT documents that are already in the index'
+    })
+    .help(HELP)
+    .nom();
+
+  if (options.noupdate)
+    request(indexUrl() + '_search?size=100000&fields=', function(err, resp) {
+      if (err)
+        throw err;
+
+      if (resp.statusCode >= 300)
+        throw new Error(resp);
+
+      options.skip = JSON.parse(resp.body)
+        .hits.hits.reduce(function(ids, item) {
+          ids[item._id] = true;
+          return ids;
+        }, {});
+
+      index(process.stdin, options).pipe(process.stdout);
+    });
+  else
+    index(process.stdin, options).pipe(process.stdout);
+}

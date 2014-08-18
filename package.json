@@ -7,7 +7,9 @@
     "test": "bin/build",
     "start": "nohup node ./lib/searchd.js &>logs/searchd.log &\n echo $! > logs/searchd.pid",
     "stop": "[ -f logs/searchd.pid ] && kill `cat logs/searchd.pid` 2>/dev/null; rm -f logs/searchd.pid",
-    "dev": "node bin/dev.js"
+    "dev": "node bin/dev.js",
+    "parse-logs": "node bin/generate-firebase-json.js ~/Documents/irc_logs/bbbbb\\ \\(745E1\\)/Channels/#waterfall 2>&1 1>/dev/null",
+    "add-to-index": "node bin/add-documents-to-elasticsearch-index.js"
   },
   "author": "",
   "license": "MIT",
@@ -33,19 +35,15 @@
   },
   "devDependencies": {
     "JSONStream": "^0.9.0",
+    "byline": "^4.1.1",
     "connect": "^3.1.0",
     "connect-logger": "0.0.1",
     "es6-promise": "^1.0.0",
-    "event-stream": "^3.1.7",
-    "hyperquest": "^0.3.0",
-    "lodash.flatten": "^2.4.1",
+    "highland": "^1.27.1",
+    "nomnom": "^1.8.0",
     "request": "^2.40.0",
-    "textual-log-parser": "^0.1.0",
     "webpack": "^1.3.2-beta9",
     "webpack-dev-server": "^1.4.7"
-  },
-  "bin": {
-    "irked": "create-index.js"
   },
   "repository": {
     "type": "git",

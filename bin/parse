@@ -1,0 +1,122 @@
+#!/usr/bin/env node
+
+var HELP = [
+  'output a json-formatted array of messages, one message per line. you can',
+  'specify filenames as arguments or a directory with the `-d` option.',
+  '',
+  'the only supported log format right now is textual.',
+  '',
+  'EXAMPLES',
+  '',
+  'parse a single log file (textual format):',
+  '',
+  '  $ bin/parse <log file>',
+  '',
+  'get the 1st 10 messages of a directory of logs:',
+  '',
+  '  $ bin/parse -d <log dir> | head',
+  '',
+  'get the messages in a format suitable for uploading as a firebase import,',
+  'i.e. as an object where the prop names are UNIX timestamps, and the values',
+  'are the messages (note that you\'ll need to navigate to the location within',
+  'the firebase you\'re replacing, something like <my fb>/logs/channels/foo):',
+  '',
+  '  $ bin/parse --firebase -d <log dir> > firebase-import.json',
+  '',
+  'get just the sender using https://www.npmjs.org/package/jsonstream :',
+  '',
+  '  $ bin/parse -d <log dir> | JSONStream .from',
+  '',
+  'get just the sender usng http://stedolan.github.io (actually slower!):',
+  '',
+  '  $ bin/parse -d <log dir> | jq .[].message'
+].join('\n');
+
+var fs = require('fs');
+var join = require('path').join;
+var os = require('os');
+
+var byline = require('byline');
+var highland = require('highland'); // heresy
+
+function parseDate(line) {
+  return line.match(/^\[([^\]]+)\] (.*)/).slice(1);
+}
+
+function parseMessage(message) {
+  return message.match(/<([^>]+)> (.*)$/).slice(1);
+}
+
+function parse(filenames, options) {
+  options = options || {};
+
+  var lineCount = 0;
+  var start = options.firebase? '{' : '[';
+  var end = options.firebase? '}' : ']';
+  var lines = highland(filenames)
+    .flatMap(function(file) {
+      var stream = fs.createReadStream(file, {encoding: 'utf8'});
+
+      return highland(byline(stream));
+    })
+    .filter(function(line) {
+      if (!line || line[0] !== '[')
+        return;
+
+      return parseDate(line)[1][0] === '<';
+    })
+    .map(function(line) {
+      var split = parseDate(line);
+      var splitMessage = parseMessage(split[1]);
+      var message = {
+        date: split[0],
+        from: splitMessage[0],
+        message: splitMessage[1]
+      };
+      var prefix = lineCount++? '\n,' : '';
+
+      if (options.firebase)
+        prefix = prefix + (new Date(message.date)).valueOf() + ': ';
+
+      return prefix + JSON.stringify(message);
+    });
+
+  return highland([start])
+    .concat(lines)
+    .concat([end]);
+}
+
+module.exports = parse;
+
+if (require.main === module) {
+  var options = require('nomnom')
+    .option('directory', {
+      abbr: 'd',
+      metavar: 'DIR',
+      help: 'directory of log files. every file will be parsed.'
+    })
+    .option('firebase', {
+      abbr: 'f',
+      flag: true,
+      help: 'output as object with UNIX timestamp keys'
+    })
+    .help(HELP)
+    .nom();
+
+  var filenames = options._;
+
+  if (options.directory)
+    filenames = filenames.concat(fs.readdirSync(options.directory)
+      .map(function(filename) {
+        return join(options.directory, filename);
+      }));
+
+  process.stdout.on('error', function(err) {
+    if (err.code === 'EPIPE')
+      process.exit(0);
+    else
+      throw err;
+  });
+
+  parse(filenames, options).pipe(process.stdout);
+}
