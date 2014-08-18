@@ -5,6 +5,7 @@ var {Routes, Route} = Router;
 var Login = require('./components/login/index.jsx');
 var User = require('./components/mixins/user');
 var Nav = require('./components/nav/index.jsx');
+var Footer = require('./components/footer/index.jsx');
 var Messages = require('./components/messages/index.jsx');
 var MessagesView = require('./components/messages-view/index.jsx');
 var SearchView = require('./components/search-view/index.jsx');
@@ -33,6 +34,7 @@ var App = React.createClass({
       <div className='container'>
         {content}
       </div>
+      <Footer />
     </div>;
   }
 });
