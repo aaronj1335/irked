@@ -65,7 +65,7 @@ var SearchResults = React.createClass({
   componentDidUpdate: function(prevProps, prevState) {
     if (this.state.key && this.props.query !== this.state.query)
       request({
-          url: 'https://dwalin-us-east-1.searchly.com/waterfall/_search',
+          url: 'https://' + constants.ELASTICSEARCH_HOST + '/waterfall/_search',
           method: 'POST',
           headers: {
             authorization: 'basic ' + btoa('site:' + this.state.key),
