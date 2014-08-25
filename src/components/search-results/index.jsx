@@ -2,6 +2,8 @@ var React = require('react');
 var ReactFire = require('reactfire');
 var Firebase = require('firebase');
 var {Link} = require('react-router');
+var merge = require('react/lib/merge');
+var request = require('./../../util/request');
 
 var constants = require('./../../constants');
 var {datetime, date, splitDateForSup} = require('./../../util/format');
@@ -10,14 +12,19 @@ var SearchResults = React.createClass({
   mixins: [ReactFire],
 
   _renderResults: function() {
-    var hits = this.state.search.result.hits || [];
+    var hits = this.state.results.map(function(result) {
+      return merge({
+        key: result._id,
+        date: new Date(+result._id),
+      }, result._source);
+    }) || [];
     var results = <p>No search results found.</p>;
 
     if (hits.length)
       results = hits.map(function(hit) {
         var dateSplit = splitDateForSup(date(hit.date));
 
-        return <div className='panel panel-default'>
+        return <div className='panel panel-default' key={hit.key}>
           <div className='panel-heading'>
             <h3 className='panel-title'>
               <Link to='message' date={hit.date}>
@@ -49,47 +56,50 @@ var SearchResults = React.createClass({
     </div>;
   },
 
-  _setSearchesRef: function() {
-    var searchesRef = new Firebase(constants.FIREBASE_URL + '/searches');
-
-    if (this._ref)
-      this.cleanup();
-
-    this._ref = searchesRef.push({query: this.props.query});
-
-    this.bindAsObject(this._ref, 'search');
-    window.addEventListener('unload', this.cleanup);
-  },
-
   componentDidMount: function() {
-    this._setSearchesRef();
-  },
+    var apiKeyRef = new Firebase(constants.FIREBASE_URL + '/searchly/key');
 
-  componentWillUnmount: function() {
-    this.cleanup();
-    window.removeEventListener('unload', this.cleanup);
+    this.bindAsObject(apiKeyRef, 'key');
   },
 
   componentDidUpdate: function(prevProps, prevState) {
-    if (prevProps.query != this.props.query)
-      this._setSearchesRef();
+    if (this.state.key && this.props.query !== this.state.query)
+      request({
+          url: 'https://dwalin-us-east-1.searchly.com/waterfall/_search',
+          method: 'POST',
+          headers: {
+            authorization: 'basic ' + btoa('site:' + this.state.key),
+            'content-type': 'application/json'
+          },
+          data: JSON.stringify({
+            query: {
+              query_string: {
+                query: this.props.query
+              }
+            }
+          })
+        })
+        .then(this.onResults, this.onSearchFail);
   },
 
   getInitialState: function() {
     return {};
   },
 
-  cleanup: function() {
-    this._ref.remove();
-    // apparently this is not needed because reactfire already unbound this?
-    // really need a way to try/catch things if something is already unbound...
-    // this.unbind('search');
+  onResults: function(xhr) {
+    if (this.isMounted())
+      this.setState({
+        query: this.props.query,
+        results: JSON.parse(xhr.response).hits.hits
+      });
+  },
+
+  onSearchFail: function() {
+    console.warn('tell the user when a search fails dummy');
   },
 
   render: function() {
-    var search = this.state.search;
-
-    if (search && search.result)
+    if (this.state.results)
       return this._renderResults();
     else
       return this._renderWaiting();
