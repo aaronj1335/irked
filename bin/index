@@ -18,19 +18,19 @@ var request = require('request');
 var highland = require('highland');
 
 var constants = require('./../src/constants');
-var pipeline = [null];
+var pipeline = [];
 var options, idsUrl;
 
 function makeDocument(messages) {
-  var before = messages[0]? messages[0] : {message: ''};
-  var current = messages[1];
-  var after = messages[2]? messages[2] : {message: ''};
+  // var before = messages[0]? messages[0] : {message: ''};
+  var current = messages[0];
+  // var after = messages[2]? messages[2] : {message: ''};
 
   return {
     from: current.from,
-    messageBefore: before.message,
-    message: current.message,
-    messageAfter: after.message
+    // messageBefore: before.message,
+    message: current.message
+    // messageAfter: after.message
   };
 }
 
@@ -43,7 +43,7 @@ function indexUrl() {
 }
 
 function makeMessageUrl(messages) {
-  var stamp = id(messages[1]);
+  var stamp = id(messages[0]);
   var url = indexUrl() + stamp;
 
   return url;
@@ -54,14 +54,14 @@ function handleData(data) {
 
   pipeline.push(data);
 
-  if (pipeline.length > 3)
+  if (pipeline.length > 1)
     pipeline.shift();
 
-  _id = id(pipeline[1]);
+  _id = id(pipeline[0]);
 
   if (options.skip && options.skip[_id]) {
     return highland(['{"skipped": true, "_id": ' + _id + '}']);
-  } else if (pipeline.length === 3) {
+  } else if (pipeline.length === 1) {
     return highland(request({
       url: makeMessageUrl(pipeline),
       method: 'PUT',
@@ -77,7 +77,7 @@ function index(inputStream, options) {
 
   return highland(inputStream.pipe(JSONStream.parse('*')))
     .flatMap(handleData)
-    .concat(highland([null]).flatMap(handleData))
+    // .concat(highland([null]).flatMap(handleData))
     .map(JSON.parse)
     .map(function(response) {
       if (response.error)
